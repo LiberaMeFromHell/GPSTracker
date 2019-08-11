@@ -99,7 +99,6 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
         mapFragment.getMapAsync(this);
 
-        updateLocation();
     }
 
     //check if a device has required location settings
@@ -208,31 +207,26 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     void addNewLocation(Location location) {
-        Log.d(TAG, "Added New Location: " + location.getLongitude() + ", " + location.getLatitude() + ", Date:"+(new Date().toString()));
-        LocationPoint locationPoint = new LocationPoint(location.getLatitude(),location.getLongitude(),(new Date().toString()));
+        Log.d(TAG, "Added New Location: " + location.getLongitude() + ", " + location.getLatitude() + ", Date:" + (new Date().toString()));
+        LocationPoint locationPoint = new LocationPoint(location.getLatitude(), location.getLongitude(), (new Date().toString()));
         TrackerRepository.insert(locationPoint);
         LatLng def = new LatLng(locationPoint.getLatitude(), locationPoint.getLongitude());
         map.addMarker(new MarkerOptions().position(def).title(locationPoint.getTimeStamp()));
     }
 
-    /*@RequiresApi(api = Build.VERSION_CODES.M)
-    public void checkPermissions() {
-        if (ActivityCompat.checkSelfPermission(this,Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.ACCESS_COARSE_LOCATION)) {
-            } else {
-                // do request the permission
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 8);
-            }
-        }
-    }*/
-
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
 
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ){
-            //code
+        if (grantResults.length <= 0) {
+            // If user cancelled the request
+            Log.d(TAG, "Permission request was cancelled");
+        } else if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            updateLocation();
+        } else {
+            // Permission request is denied
+            finishAffinity();
         }
+
     }
 
     //stop location updates to decrease battery usage.
